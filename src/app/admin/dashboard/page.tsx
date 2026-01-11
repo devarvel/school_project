@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, CreditCard, GraduationCap, School } from "lucide-react";
 import connectToDatabase from "@/lib/db";
-import { Student, Payment } from "@/models/User"; // Wait, Payment is separate model
+import { Student } from "@/models/User";
 import { Payment as PaymentModel } from "@/models/Payment";
 import { UserRole } from "@/types/enums";
 
