@@ -19,7 +19,7 @@ export async function createStudent(formData: any) {
         const validatedData = StudentSchema.parse(formData);
 
         // Safety check: Class admins can only create students for their assigned level
-        if (session.user.role === UserRole.CLASS_ADMIN && validatedData.currentLevel !== session.user.assignedLevel) {
+        if (session.user.role === UserRole.CLASS_ADMIN && session.user.assignedLevel !== undefined && validatedData.currentLevel !== session.user.assignedLevel) {
             return { success: false, error: 'Cannot create student for a different level' };
         }
 
@@ -53,7 +53,7 @@ export async function deleteStudent(id: string) {
         if (!student) return { success: false, error: 'Student not found' };
 
         // Security check for class admin
-        if (session.user.role === UserRole.CLASS_ADMIN && student.currentLevel !== session.user.assignedLevel) {
+        if (session.user.role === UserRole.CLASS_ADMIN && session.user.assignedLevel !== undefined && student.currentLevel !== session.user.assignedLevel) {
             return { success: false, error: 'Unauthorized: Student belongs to another class' };
         }
 

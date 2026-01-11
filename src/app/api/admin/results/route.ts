@@ -25,7 +25,7 @@ export async function GET(req: Request) {
     // For CLASS_ADMIN, we must verify the student belongs to their level
     if (session.user.role === UserRole.CLASS_ADMIN) {
         const student = await Student.findById(studentId);
-        if (!student || student.currentLevel !== session.user.assignedLevel) {
+        if (!student || (session.user.assignedLevel !== undefined && student.currentLevel !== session.user.assignedLevel)) {
             return new NextResponse('Unauthorized: Student belongs to another level', { status: 403 });
         }
     }

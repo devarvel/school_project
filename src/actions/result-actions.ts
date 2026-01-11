@@ -44,7 +44,7 @@ export async function deleteResult(id: string) {
         if (session.user.role === UserRole.CLASS_ADMIN) {
             // Further security: Check if student belongs to this admin's level
             const result = await Result.findById(id).populate('studentId');
-            if (!result || (result.studentId as any).currentLevel !== session.user.assignedLevel) {
+            if (!result || (session.user.assignedLevel !== undefined && (result.studentId as any).currentLevel !== session.user.assignedLevel)) {
                 return { success: false, error: 'Unauthorized: Cannot delete result for student in another level' };
             }
         }

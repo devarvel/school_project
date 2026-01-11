@@ -20,7 +20,6 @@ const PaymentSchema = new Schema<IPayment>(
 );
 
 // Indexes
-PaymentSchema.index({ reference: 1 });
 PaymentSchema.index({ studentId: 1 });
 
 export const Payment = (mongoose.models.Payment as Model<IPayment>) || mongoose.model<IPayment>('Payment', PaymentSchema);
