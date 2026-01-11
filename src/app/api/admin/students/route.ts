@@ -18,7 +18,7 @@ export async function GET(req: Request) {
 
     // Enforce level restriction for CLASS_ADMIN
     if (session.user.role === UserRole.CLASS_ADMIN) {
-        currentLevel = session.user.assignedLevel;
+        currentLevel = session.user.assignedLevel ?? null;
     }
 
     await connectToDatabase();
