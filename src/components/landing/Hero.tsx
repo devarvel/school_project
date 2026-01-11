@@ -20,7 +20,7 @@ export function Hero() {
                         className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-indigo-400 text-sm font-bold tracking-wide uppercase"
                     >
                         <Zap className="w-4 h-4" />
-                        The Future of Academic experine
+                        The Future of Academic Experience
                     </motion.div>
 
                     <motion.h1
@@ -29,7 +29,7 @@ export function Hero() {
                         transition={{ duration: 0.5, delay: 0.1 }}
                         className="text-5xl md:text-7xl font-extrabold text-white tracking-tighter leading-[1.1]"
                     >
-                        City High Foundation <span className="bg-gradient-to-r from-indigo-500 to-cyan-400 bg-clip-text text-transparent">School..</span> <br/> school portal
+                        City High Foundation <span className="bg-gradient-to-r from-indigo-500 to-cyan-400 bg-clip-text text-transparent">School..</span> <br /> school portal
                     </motion.h1>
 
                     <motion.p
@@ -38,7 +38,7 @@ export function Hero() {
                         transition={{ duration: 0.5, delay: 0.2 }}
                         className="text-lg md:text-xl text-slate-400 leading-relaxed max-w-2xl mx-auto"
                     >
-                        Here in city high foundation school we are raising stars and making chanpions. and also keeping up with the technology age to make teaching and learing easier and more effective.
+                        Here in city high foundation school we are raising stars and making champions. and also keeping up with the technology age to make teaching and learing easier and more effective.
                     </motion.p>
 
                     <motion.div
