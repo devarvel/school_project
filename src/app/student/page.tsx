@@ -11,7 +11,9 @@ import { UserRole } from "@/types/enums";
 import { cn } from "@/lib/utils";
 import { PaymentButton } from "@/components/student/PaymentButton";
 import { TokenUnlock } from "@/components/student/TokenUnlock";
+import { PaymentVerification } from "@/components/student/PaymentVerification";
 import { getClassLabel } from '@/lib/constants';
+import { Suspense } from "react";
 
 export default async function StudentDashboard() {
     const session = await getServerSession(authOptions);
@@ -37,6 +39,9 @@ export default async function StudentDashboard() {
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <Suspense>
+                <PaymentVerification />
+            </Suspense>
             {/* Header Profile Section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-indigo-600/10 border border-indigo-500/20 p-8 rounded-2xl">
                 <div className="flex items-center gap-6">

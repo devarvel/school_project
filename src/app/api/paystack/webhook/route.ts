@@ -9,13 +9,14 @@ import { WebhookMetadataSchema } from '@/lib/validations';
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY!;
 
 export async function POST(req: Request) {
-    const body = await req.json();
+    const rawBody = await req.text();
+    const body = JSON.parse(rawBody);
     const signature = req.headers.get('x-paystack-signature');
 
     // 1. Verify Signature
     const hash = crypto
         .createHmac('sha512', PAYSTACK_SECRET_KEY)
-        .update(JSON.stringify(body))
+        .update(rawBody)
         .digest('hex');
 
     if (hash !== signature) {
