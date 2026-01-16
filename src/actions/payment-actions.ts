@@ -8,6 +8,7 @@ import { Payment } from "@/models/Payment";
 import { Student } from "@/models/User";
 import { initializePaystackTransaction, verifyPaystackTransaction } from "@/lib/paystack";
 import { UserRole } from "@/types/enums";
+import { headers } from "next/headers";
 
 /**
  * Initialize Payment for a Result
@@ -40,11 +41,15 @@ export async function initializeResultPayment(resultId: string) {
         term: result.term,
     };
 
+    const host = (await headers()).get('host');
+    const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
+    const callback_url = `${protocol}://${host}/student`;
+
     const response = await initializePaystackTransaction({
         email: `${student.admissionNum}@scholarportal.pro`, // Dummy email for student if real one doesn't exist
         amount,
         metadata,
-        callback_url: `${process.env.NEXTAUTH_URL}/student`,
+        callback_url,
     });
 
     return { success: true, url: response.data.authorization_url, reference: response.data.reference };
