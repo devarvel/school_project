@@ -14,11 +14,11 @@ export function PaymentButton({ resultId }: { resultId: string }) {
             if (res.success && res.url) {
                 window.location.href = res.url;
             } else {
-                alert('Failed to initialize payment. Please try again.');
+                alert(res.error || 'Failed to initialize payment. Please try again.');
                 setLoading(false);
             }
         } catch (error: any) {
-            alert(error.message || 'An error occurred');
+            alert('A network error occurred. Please check your connection.');
             setLoading(false);
         }
     };

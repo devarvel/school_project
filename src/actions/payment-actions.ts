@@ -15,44 +15,57 @@ import { headers } from "next/headers";
  * Returns Paystack authorization URL
  */
 export async function initializeResultPayment(resultId: string) {
-    const session = await getServerSession(authOptions);
+    try {
+        const session = await getServerSession(authOptions);
 
-    if (!session || session.user.role !== UserRole.STUDENT) {
-        throw new Error('Unauthorized');
+        if (!session || session.user.role !== UserRole.STUDENT) {
+            return { success: false, error: 'Unauthorized. Please log in again.' };
+        }
+
+        if (!process.env.PAYSTACK_SECRET_KEY) {
+            return { success: false, error: 'Payment system configuration missing (Secret Key).' };
+        }
+
+        await connectToDatabase();
+
+        const result = await Result.findById(resultId);
+        if (!result) return { success: false, error: 'Academic record not found.' };
+        if (result.isPaid) return { success: false, error: 'Result already unlocked.' };
+
+        const student = await Student.findOne({ admissionNum: session.user.admissionNum });
+        if (!student) return { success: false, error: 'Student profile not found.' };
+
+        // Business Logic: Fixed price for result access (e.g., 2000 NGN)
+        const amount = 2000;
+
+        const metadata = {
+            resultId: result._id.toString(),
+            studentId: student._id.toString(),
+            admissionNum: student.admissionNum,
+            session: result.session,
+            term: result.term,
+        };
+
+        const host = (await headers()).get('host');
+        // Fallback to NEXTAUTH_URL if host is not available (rare in Next.js)
+        const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
+        const callback_url = host ? `${protocol}://${host}/student` : `${process.env.NEXTAUTH_URL}/student`;
+
+        const response = await initializePaystackTransaction({
+            email: `${student.admissionNum}@scholarportal.pro`,
+            amount,
+            metadata,
+            callback_url,
+        });
+
+        return { success: true, url: response.data.authorization_url, reference: response.data.reference };
+    } catch (error: any) {
+        console.error('[INITIALIZE_PAYMENT_ERROR]', error);
+        return {
+            success: false,
+            error: error.message || 'A server error occurred during payment initialization.'
+        };
     }
-
-    await connectToDatabase();
-
-    const result = await Result.findById(resultId);
-    if (!result) throw new Error('Result not found');
-    if (result.isPaid) throw new Error('Result already unlocked');
-
-    const student = await Student.findOne({ admissionNum: session.user.admissionNum });
-    if (!student) throw new Error('Student profile not found');
-
-    // Business Logic: Fixed price for result access (e.g., 2000 NGN)
-    const amount = 2000;
-
-    const metadata = {
-        resultId: result._id.toString(),
-        studentId: student._id.toString(),
-        admissionNum: student.admissionNum,
-        session: result.session,
-        term: result.term,
-    };
-
-    const host = (await headers()).get('host');
-    const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
-    const callback_url = `${protocol}://${host}/student`;
-
-    const response = await initializePaystackTransaction({
-        email: `${student.admissionNum}@scholarportal.pro`, // Dummy email for student if real one doesn't exist
-        amount,
-        metadata,
-        callback_url,
-    });
-
-    return { success: true, url: response.data.authorization_url, reference: response.data.reference };
 }
 
 /**
