@@ -51,8 +51,11 @@ export async function initializeResultPayment(resultId: string) {
         const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
         const callback_url = host ? `${protocol}://${host}/student` : `${process.env.NEXTAUTH_URL}/student`;
 
+        const sanitizedAdmission = student.admissionNum.replace(/[^a-zA-Z0-9]/g, '-');
+        const dummyEmail = student.email || `${sanitizedAdmission}@scholarportal.pro`;
+
         const response = await initializePaystackTransaction({
-            email: `${student.admissionNum}@scholarportal.pro`,
+            email: dummyEmail,
             amount,
             metadata,
             callback_url,
