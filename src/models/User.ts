@@ -28,6 +28,8 @@ const AdminSchema = new Schema<IAdmin>(
 export interface IStudent extends Document {
     admissionNum: string;
     surname: string;
+    firstName?: string;
+    otherNames?: string;
     email?: string; // For result token notifications
     currentLevel: number;
     status: StudentStatus;
@@ -40,6 +42,8 @@ const StudentSchema = new Schema<IStudent>(
     {
         admissionNum: { type: String, required: true, unique: true, uppercase: true },
         surname: { type: String, required: true, uppercase: true }, // Uppercase for consistent matching
+        firstName: { type: String, uppercase: true },
+        otherNames: { type: String, uppercase: true },
         email: { type: String }, // For result token notifications
         currentLevel: { type: Number, required: true },
         status: { type: String, enum: Object.values(StudentStatus), default: StudentStatus.ACTIVE },

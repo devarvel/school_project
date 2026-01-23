@@ -4,13 +4,14 @@ import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { GraduationCap, ShieldCheck, Loader2, ArrowRight } from 'lucide-react';
+import { GraduationCap, ShieldCheck, Loader2, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function LoginPage() {
     const [isAdmin, setIsAdmin] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [showPassword, setShowPassword] = useState(false);
     const router = useRouter();
 
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -89,7 +90,22 @@ export default function LoginPage() {
                                     </div>
                                     <div className="space-y-1">
                                         <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Password</label>
-                                        <input name="password" type="password" required autoCapitalize="none" className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+                                        <div className="relative">
+                                            <input
+                                                name="password"
+                                                type={showPassword ? "text" : "password"}
+                                                required
+                                                autoCapitalize="none"
+                                                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all pr-10"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                                            >
+                                                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                            </button>
+                                        </div>
                                     </div>
                                 </>
                             ) : (

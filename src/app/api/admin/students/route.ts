@@ -28,7 +28,7 @@ export async function GET(req: Request) {
         query.currentLevel = currentLevel;
     }
 
-    const students = await Student.find(query).sort({ currentLevel: 1, surname: 1 });
+    const students = await Student.find(query).sort({ surname: 1, firstName: 1, admissionNum: 1 });
 
     return NextResponse.json(students);
 }

@@ -11,6 +11,8 @@ export const AdminSchema = z.object({
 export const StudentSchema = z.object({
     admissionNum: z.string().min(3, 'Admission number is too short').toUpperCase(),
     surname: z.string().min(2, 'Surname is too short').toUpperCase(),
+    firstName: z.string().optional().or(z.literal('')).transform(val => val?.toUpperCase()),
+    otherNames: z.string().optional().or(z.literal('')).transform(val => val?.toUpperCase()),
     email: z.string().email('Invalid email address').optional().or(z.literal('')),
     currentLevel: z.coerce.number().min(1).max(14),
 });

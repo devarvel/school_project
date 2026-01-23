@@ -73,3 +73,92 @@ export async function deleteStudent(id: string) {
         return { success: false, error: err.message };
     }
 }
+}
+
+export async function updateStudent(id: string, formData: any) {
+    const session = await getServerSession(authOptions);
+    if (!session || (session.user.role !== UserRole.SUPER_ADMIN && session.user.role !== UserRole.CLASS_ADMIN)) {
+        return { success: false, error: 'Unauthorized' };
+    }
+
+    await connectToDatabase();
+    try {
+        // We use Partial to allow updating subset, but here we validate full schema or simple partial
+        // For simplicity, we just parse what we can or validate specific fields.
+        // Let's re-use StudentSchema but make it partial safe or manually extracting
+        // Actually, StudentSchema requires admissionNum which we might not want to change easily or at all?
+        // Let's assume we pass all data again.
+
+        const validatedData = StudentSchema.parse(formData);
+
+        const student = await Student.findById(id);
+        if (!student) return { success: false, error: 'Student not found' };
+
+        // Security check for class admin
+        if (session.user.role === UserRole.CLASS_ADMIN && session.user.assignedLevel !== undefined && student.currentLevel !== session.user.assignedLevel) {
+            return { success: false, error: 'Unauthorized: Student belongs to another class' };
+        }
+
+        // Check if admission number is being changed to one that exists
+        if (validatedData.admissionNum !== student.admissionNum) {
+            const exists = await Student.findOne({ admissionNum: validatedData.admissionNum });
+            if (exists) return { success: false, error: 'Admission Number already exists' };
+        }
+
+        const updatedStudent = await Student.findByIdAndUpdate(
+            id,
+            { ...validatedData },
+            { new: true }
+        );
+
+        revalidatePath('/admin/students');
+        return { success: true, student: JSON.parse(JSON.stringify(updatedStudent)) };
+    } catch (err: any) {
+        return { success: false, error: err.message || 'Update failed' };
+    }
+}
+
+export async function bulkCreateStudents(studentsData: any[]) {
+    const session = await getServerSession(authOptions);
+    if (!session || (session.user.role !== UserRole.SUPER_ADMIN && session.user.role !== UserRole.CLASS_ADMIN)) {
+        return { success: false, error: 'Unauthorized' };
+    }
+
+    await connectToDatabase();
+
+    let successCount = 0;
+    let errors: string[] = [];
+
+    // Safety check for class admin
+    const allowedLevel = (session.user.role === UserRole.CLASS_ADMIN) ? session.user.assignedLevel : null;
+
+    for (const data of studentsData) {
+        try {
+            // Force level if class admin
+            if (allowedLevel !== undefined && allowedLevel !== null) {
+                data.currentLevel = allowedLevel;
+            }
+
+            const validatedData = StudentSchema.parse(data);
+
+            await Student.create({
+                ...validatedData,
+                status: StudentStatus.ACTIVE,
+                isRepeat: false,
+            });
+            successCount++;
+        } catch (err: any) {
+            // If duplicate key error (E11000), skip or log
+            if (err.code === 11000) {
+                errors.push(`Duplicate: ${data.admissionNum}`);
+            } else if (err.issues) {
+                errors.push(`Validation Error (${data.surname}): ${err.issues[0].message}`);
+            } else {
+                errors.push(`Error (${data.admissionNum}): ${err.message}`);
+            }
+        }
+    }
+
+    revalidatePath('/admin/students');
+    return { success: true, count: successCount, errors };
+}
