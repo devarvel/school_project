@@ -73,7 +73,6 @@ export async function deleteStudent(id: string) {
         return { success: false, error: err.message };
     }
 }
-}
 
 export async function updateStudent(id: string, formData: any) {
     const session = await getServerSession(authOptions);

@@ -10,8 +10,7 @@ import { deleteResult } from '@/actions/result-actions';
 import { cn } from '@/lib/utils';
 import { getClassLabel, LEVELS } from '@/lib/constants';
 import { UserRole } from '@/types/enums';
-import { getClassLabel, LEVELS } from '@/lib/constants';
-import { UserRole } from '@/types/enums';
+import * as XLSX from 'xlsx';
 
 function StudentResultsList({ studentId, onDelete }: { studentId: string, onDelete: (id: string) => void }) {
     const [results, setResults] = useState<any[]>([]);
@@ -163,7 +162,7 @@ export default function StudentsPage() {
             if (confirm(`Found ${studentsToCreate.length} students. Import now?`)) {
                 const res = await bulkCreateStudents(studentsToCreate);
                 if (res.success) {
-                    alert(`Imported ${res.count} students successfully.${res.errors.length > 0 ? `\nErrors: ${res.errors.length}` : ''}`);
+                    alert(`Imported ${res.count} students successfully.${res.errors && res.errors.length > 0 ? `\nErrors: ${res.errors.length}` : ''}`);
                     setShowImportModal(false);
                     if (selectedLevel) refreshStudents(selectedLevel);
                 } else {
