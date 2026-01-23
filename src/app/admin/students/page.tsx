@@ -192,22 +192,22 @@ export default function StudentsPage() {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h2 className="text-3xl font-bold text-white tracking-tight">{getClassLabel(assignedLevel!)} Management</h2>
                     <p className="text-slate-400">Manage students and results for your assigned class.</p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2 text-sm">
                     <button
                         onClick={() => setShowImportModal(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-medium transition-colors text-sm"
+                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-medium transition-colors"
                     >
                         <FileSpreadsheet className="w-4 h-4" />
                         Import Excel
                     </button>
                     <button
                         onClick={() => setShowAddForm(!showAddForm)}
-                        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium transition-colors text-sm"
+                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium transition-colors"
                     >
                         <UserPlus className="w-4 h-4" />
                         Add Student
@@ -221,7 +221,7 @@ export default function StudentsPage() {
                         <CardTitle className="text-lg">Add New Student</CardTitle>
                     </CardHeader>
                     <CardContent className="p-6 pt-0">
-                        <form onSubmit={handleCreate} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+                        <form onSubmit={handleCreate} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
                             <div className="space-y-1">
                                 <label className="text-xs text-slate-400 uppercase font-bold">Admission #</label>
                                 <input name="admissionNum" required className="w-full bg-slate-950 border border-slate-700 rounded px-3 py-2 text-white text-sm" placeholder="SCH-001" />
@@ -339,7 +339,7 @@ export default function StudentsPage() {
 
             {showImportModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                    <Card className="w-full max-w-lg bg-slate-900 border-slate-800 shadow-2xl">
+                    <Card className="w-full max-w-lg bg-slate-900 border-slate-800 shadow-2xl mx-4">
                         <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle>Import Students (Excel)</CardTitle>
                             <button onClick={() => !importing && setShowImportModal(false)} disabled={importing}>
@@ -379,7 +379,7 @@ export default function StudentsPage() {
 
             {editingStudent && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                    <Card className="w-full max-w-2xl bg-slate-900 border-slate-800 shadow-2xl">
+                    <Card className="w-full max-w-2xl bg-slate-900 border-slate-800 shadow-2xl mx-4 max-h-[90vh] overflow-y-auto">
                         <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle>Edit Student</CardTitle>
                             <button onClick={() => setEditingStudent(null)}>
@@ -387,7 +387,7 @@ export default function StudentsPage() {
                             </button>
                         </CardHeader>
                         <CardContent>
-                            <form onSubmit={handleUpdate} className="grid md:grid-cols-2 gap-4">
+                            <form onSubmit={handleUpdate} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-1">
                                     <label className="text-xs text-slate-400 uppercase font-bold">Admission #</label>
                                     <input name="admissionNum" defaultValue={editingStudent.admissionNum} required className="w-full bg-slate-950 border border-slate-700 rounded px-3 py-2 text-white" />

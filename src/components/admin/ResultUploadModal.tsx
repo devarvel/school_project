@@ -52,7 +52,7 @@ export function ResultUploadModal({ student, onClose, onSuccess }: UploadModalPr
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <Card className="w-full max-w-lg bg-slate-900 border-slate-800 shadow-2xl animate-in zoom-in-95 duration-200">
+            <Card className="w-full max-w-lg bg-slate-900 border-slate-800 shadow-2xl animate-in zoom-in-95 duration-200 mx-4">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle className="text-xl">Upload Result</CardTitle>
                     <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors">
