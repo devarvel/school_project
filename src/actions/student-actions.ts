@@ -4,9 +4,12 @@ import connectToDatabase from '@/lib/db';
 import { Student, StudentStatus } from '@/models/User';
 import { revalidatePath } from 'next/cache';
 import { StudentSchema } from '@/lib/validations';
+import bcrypt from 'bcryptjs';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { UserRole } from '@/types/enums';
+import { logAction } from '@/actions/audit-actions';
+
 
 export async function createStudent(formData: any) {
     const session = await getServerSession(authOptions);
@@ -28,7 +31,11 @@ export async function createStudent(formData: any) {
             status: StudentStatus.ACTIVE,
             isRepeat: false,
         });
+
+        await logAction('CREATE_STUDENT', 'Student', student._id.toString(), `Created student: ${student.surname} (${student.admissionNum})`);
+
         revalidatePath('/admin/students');
+
         return { success: true, student: JSON.parse(JSON.stringify(student)) };
     } catch (err: any) {
         if (err.code === 11000) {
@@ -66,7 +73,10 @@ export async function deleteStudent(id: string) {
         // 3. Delete Student record
         await Student.findByIdAndDelete(id);
 
+        await logAction('DELETE_STUDENT', 'Student', id, `Deleted student: ${student.surname} (${student.admissionNum}) and all records`);
+
         revalidatePath('/admin/students');
+
         revalidatePath('/admin/dashboard');
         return { success: true };
     } catch (err: any) {
@@ -110,7 +120,10 @@ export async function updateStudent(id: string, formData: any) {
             { new: true }
         );
 
+        await logAction('UPDATE_STUDENT', 'Student', id, `Updated student: ${updatedStudent?.surname} (${updatedStudent?.admissionNum})`);
+
         revalidatePath('/admin/students');
+
         return { success: true, student: JSON.parse(JSON.stringify(updatedStudent)) };
     } catch (err: any) {
         return { success: false, error: err.message || 'Update failed' };
@@ -158,6 +171,43 @@ export async function bulkCreateStudents(studentsData: any[]) {
         }
     }
 
+    await logAction('BULK_CREATE_STUDENTS', 'Student', undefined, `Bulk created ${successCount} students with ${errors.length} errors`);
+
     revalidatePath('/admin/students');
+
     return { success: true, count: successCount, errors };
+}
+
+export async function resetStudentPassword(studentId: string, newPassword: string) {
+    const session = await getServerSession(authOptions);
+    if (!session) return { success: false, error: 'Unauthorized' };
+
+    await connectToDatabase();
+    try {
+        const student = await Student.findById(studentId);
+        if (!student) return { success: false, error: 'Student not found.' };
+
+        // Authorization check: Super Admin or assigned Class Admin
+        if (session.user.role !== UserRole.SUPER_ADMIN) {
+            if (session.user.role === UserRole.CLASS_ADMIN && session.user.assignedLevel !== student.currentLevel) {
+                return { success: false, error: 'You are not authorized to manage this student.' };
+            } else if (session.user.role !== UserRole.CLASS_ADMIN) {
+                return { success: false, error: 'Unauthorized' };
+            }
+        }
+
+        if (!newPassword || newPassword.length < 3) {
+            return { success: false, error: 'Password is too short.' };
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await Student.findByIdAndUpdate(studentId, { password: hashedPassword });
+
+        await logAction('RESET_STUDENT_PASSWORD', 'Student', studentId, `Updated password for student ${student.admissionNum}`);
+
+        revalidatePath('/admin/students');
+        return { success: true, message: 'Student password updated successfully' };
+    } catch (err: any) {
+        return { success: false, error: err.message };
+    }
 }

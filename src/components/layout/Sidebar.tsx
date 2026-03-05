@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, Users, BookOpen, TrendingUp, LogOut, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Users, BookOpen, TrendingUp, LogOut, Menu, X, Settings, ClipboardList } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import { UserRole } from '@/types/enums';
 import { getClassLabel } from '@/lib/constants';
@@ -18,9 +18,12 @@ export function Sidebar() {
     const navItems = [
         { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard, roles: [UserRole.SUPER_ADMIN, UserRole.CLASS_ADMIN] },
         { name: 'My Class', href: '/admin/students', icon: Users, roles: [UserRole.CLASS_ADMIN] },
+        { name: 'Record Scores', href: '/admin/record-scores', icon: ClipboardList, roles: [UserRole.CLASS_ADMIN] },
         { name: 'Promotion', href: '/admin/promotion', icon: TrendingUp, roles: [UserRole.SUPER_ADMIN] },
         { name: 'Blog', href: '/admin/blog', icon: BookOpen, roles: [UserRole.SUPER_ADMIN] },
         { name: 'Users', href: '/admin/users', icon: Users, roles: [UserRole.SUPER_ADMIN] },
+        { name: 'Audit Log', href: '/admin/audit', icon: ClipboardList, roles: [UserRole.SUPER_ADMIN] },
+        { name: 'Settings', href: '/admin/settings', icon: Settings, roles: [UserRole.SUPER_ADMIN] },
     ];
 
     const filteredItems = navItems.filter(item => item.roles.includes(role as UserRole));

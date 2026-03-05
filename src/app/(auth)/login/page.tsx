@@ -101,7 +101,7 @@ export default function LoginPage() {
                                             <button
                                                 type="button"
                                                 onClick={() => setShowPassword(!showPassword)}
-                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-500 hover:text-slate-300 transition-colors"
                                             >
                                                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                             </button>
@@ -115,8 +115,8 @@ export default function LoginPage() {
                                         <input name="admissionNum" type="text" required autoCapitalize="none" autoCorrect="off" spellCheck="false" placeholder="SCH/2024/001" className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all uppercase" />
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Surname</label>
-                                        <input name="surname" type="text" required autoCapitalize="none" autoCorrect="off" spellCheck="false" placeholder="Surname" className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all uppercase" />
+                                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Surname / Password</label>
+                                        <input name="surname" type={showPassword ? "text" : "password"} required autoCapitalize="none" autoCorrect="off" spellCheck="false" placeholder="Surname or Password" className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all uppercase" />
                                     </div>
                                 </>
                             )}

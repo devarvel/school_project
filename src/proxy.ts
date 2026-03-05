@@ -18,8 +18,10 @@ export default withAuth(
             // Super Admin only routes
             const superAdminOnlyPaths = [
                 "/admin/users",
+                "/admin/audit",
                 "/admin/promotion",
-                "/admin/blog"
+                "/admin/blog",
+                "/admin/settings",
             ];
 
             if (superAdminOnlyPaths.some(path => pathname.startsWith(path)) && role !== UserRole.SUPER_ADMIN) {
@@ -29,8 +31,16 @@ export default withAuth(
 
         // 2. Student Routes Protection
         if (pathname.startsWith("/student")) {
-            if (role !== UserRole.STUDENT) {
-                return NextResponse.redirect(new URL("/login", req.url));
+            // Allow Admins to view student results (e.g. for printing)
+            if (pathname.startsWith("/student/result/")) {
+                if (role !== UserRole.STUDENT && role !== UserRole.SUPER_ADMIN && role !== UserRole.CLASS_ADMIN) {
+                    return NextResponse.redirect(new URL("/login", req.url));
+                }
+            } else {
+                // strict student-only for other /student/ routes (dashboard, etc.)
+                if (role !== UserRole.STUDENT) {
+                    return NextResponse.redirect(new URL("/login", req.url));
+                }
             }
         }
 

@@ -47,9 +47,14 @@ export default function PromotionPage() {
         );
     };
 
-    const handlePromotion = async () => {
-        if (!confirm('Are you sure you want to end the session? This will update all student levels.')) return;
+    const [confirmOpen, setConfirmOpen] = useState(false);
 
+    const handlePromotion = () => {
+        setConfirmOpen(true);
+    };
+
+    const handleFinalPromotion = async () => {
+        setConfirmOpen(false);
         setProcessing(true);
         const result = await processSessionEndPromotion(failedIds);
         setProcessing(false);
@@ -86,6 +91,56 @@ export default function PromotionPage() {
                     }`}>
                     {message.type === 'success' ? <CheckCircle2 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
                     {message.text}
+                </div>
+            )}
+
+            {/* Session End Confirmation Guard */}
+            {confirmOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
+                    <Card className="w-full max-w-lg bg-slate-900 border-slate-800 shadow-2xl">
+                        <CardHeader className="text-center p-8 pb-4">
+                            <div className="mx-auto p-4 bg-amber-500/10 rounded-full w-fit mb-4">
+                                <AlertCircle className="w-10 h-10 text-amber-500" />
+                            </div>
+                            <CardTitle className="text-2xl text-white">Final Confirmation</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-8 pt-0 text-center space-y-6">
+                            <p className="text-slate-400">
+                                You are about to <span className="text-white font-bold">End the Academic Session</span>.
+                                This is a critical system action that performs the following:
+                            </p>
+
+                            <ul className="text-left text-sm bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3">
+                                <li className="flex items-center gap-3 text-slate-300">
+                                    <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full" />
+                                    <span>Promotes all active students by 1 level</span>
+                                </li>
+                                <li className="flex items-center gap-3 text-slate-300">
+                                    <div className="w-1.5 h-1.5 bg-red-500 rounded-full" />
+                                    <span>Marks <span className="text-white font-bold">{failedIds.length} students</span> as repeaters</span>
+                                </li>
+                                <li className="flex items-center gap-3 text-slate-300">
+                                    <div className="w-1.5 h-1.5 bg-amber-500 rounded-full" />
+                                    <span>Archives graduating students (SS 3)</span>
+                                </li>
+                            </ul>
+
+                            <div className="flex gap-4 pt-4">
+                                <button
+                                    onClick={() => setConfirmOpen(false)}
+                                    className="flex-1 py-3 text-slate-400 hover:text-white font-bold transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleFinalPromotion}
+                                    className="flex-1 py-3 bg-red-600 hover:bg-red-500 text-white rounded-lg font-bold shadow-lg shadow-red-500/20 active:scale-95 transition-all"
+                                >
+                                    Yes, Run Promotion
+                                </button>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
             )}
 

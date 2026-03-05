@@ -21,9 +21,17 @@ export async function createBlogPost(formData: any) {
             published: formData.published === 'on' || formData.published === true,
         });
 
+        const slug = validatedData.title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+
+        // Check for duplicate slug
+        const existing = await BlogPost.findOne({ slug });
+        if (existing) {
+            return { success: false, error: 'A blog post with this title/slug already exists.' };
+        }
+
         const post = await BlogPost.create({
             ...validatedData,
-            slug: validatedData.title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, ''),
+            slug,
         });
 
         revalidatePath('/admin/blog');
@@ -48,11 +56,18 @@ export async function updateBlogPost(id: string, formData: any) {
             published: formData.published === 'on' || formData.published === true || formData.published === 'true',
         });
 
+        const slug = validatedData.title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+
+        const existing = await BlogPost.findOne({ slug, _id: { $ne: id } });
+        if (existing) {
+            return { success: false, error: 'Another post with this title/slug already exists.' };
+        }
+
         const post = await BlogPost.findByIdAndUpdate(
             id,
             {
                 ...validatedData,
-                slug: validatedData.title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, ''),
+                slug,
             },
             { new: true }
         );

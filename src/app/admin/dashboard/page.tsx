@@ -4,6 +4,7 @@ import connectToDatabase from "@/lib/db";
 import { Student } from "@/models/User";
 import { Payment as PaymentModel } from "@/models/Payment";
 import { UserRole } from "@/types/enums";
+import { SystemUsage } from "@/components/admin/SystemUsage";
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -119,6 +120,13 @@ export default async function AdminDashboardPage() {
                     </CardContent>
                 </Card>
             </div>
+
+            {/* System Usage & Maintenance (Super Admin Only) */}
+            {!isClassAdmin && (
+                <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-1 max-w-2xl">
+                    <SystemUsage />
+                </div>
+            )}
         </div>
     );
 }

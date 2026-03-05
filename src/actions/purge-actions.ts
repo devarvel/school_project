@@ -8,6 +8,8 @@ import { revalidatePath } from 'next/cache';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { UserRole } from '@/types/enums';
+import { logAction } from '@/actions/audit-actions';
+
 
 /**
  * Cascade Purge System
@@ -31,7 +33,10 @@ export async function cascadeDeleteStudent(studentId: string) {
         // 3. Delete Student record
         await Student.findByIdAndDelete(studentId);
 
+        await logAction('CASCADE_PURGE_STUDENT', 'Student', studentId, `Completely purged student and all associated records`);
+
         revalidatePath('/admin/dashboard');
+
         return { success: true };
     } catch (error: any) {
         return { success: false, error: error.message };
@@ -57,7 +62,10 @@ export async function purgeLevel(level: number) {
         await Payment.deleteMany({ studentId: { $in: ids } });
         await Student.deleteMany({ _id: { $in: ids } });
 
+        await logAction('PURGE_LEVEL', 'System', String(level), `Purged entire level ${level} (${ids.length} students)`);
+
         revalidatePath('/admin/dashboard');
+
         return { success: true, count: ids.length };
     } catch (error: any) {
         return { success: false, error: error.message };

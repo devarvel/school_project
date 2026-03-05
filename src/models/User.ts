@@ -31,6 +31,7 @@ export interface IStudent extends Document {
     firstName?: string;
     otherNames?: string;
     email?: string; // For result token notifications
+    password?: string; // Hashed password
     currentLevel: number;
     status: StudentStatus;
     isRepeat: boolean;
@@ -45,6 +46,7 @@ const StudentSchema = new Schema<IStudent>(
         firstName: { type: String, uppercase: true },
         otherNames: { type: String, uppercase: true },
         email: { type: String }, // For result token notifications
+        password: { type: String }, // Hashed
         currentLevel: { type: Number, required: true },
         status: { type: String, enum: Object.values(StudentStatus), default: StudentStatus.ACTIVE },
         isRepeat: { type: Boolean, default: false },

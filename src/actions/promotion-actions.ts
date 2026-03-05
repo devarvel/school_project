@@ -7,6 +7,8 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { UserRole } from '@/types/enums';
 import { FINAL_LEVEL } from '@/lib/constants';
+import { logAction } from '@/actions/audit-actions';
+
 
 /**
  * Mass Promotion Engine
@@ -57,7 +59,10 @@ export async function processSessionEndPromotion(failedStudentIds: string[]) {
         revalidatePath('/admin/dashboard');
         revalidatePath('/admin/promotion');
 
+        await logAction('MASS_PROMOTION', 'System', undefined, `Processed session end promotion. Failed students: ${failedStudentIds.length}`);
+
         return { success: true, message: 'Mass promotion completed successfully.' };
+
     } catch (error: any) {
         console.error('Promotion Error:', error);
         return { success: false, error: error.message };

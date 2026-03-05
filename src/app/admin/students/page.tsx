@@ -2,14 +2,14 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { UserPlus, Search, FileUp, Trash2, Loader2, GraduationCap, FileText, FileSpreadsheet, Edit, Upload, X, AlertCircle } from 'lucide-react';
+import { UserPlus, Search, FileUp, Trash2, Loader2, GraduationCap, FileText, FileSpreadsheet, Edit, Upload, X, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { createStudent, deleteStudent, updateStudent, bulkCreateStudents } from '@/actions/student-actions';
-import { ResultUploadModal } from '@/components/admin/ResultUploadModal';
 import { deleteResult } from '@/actions/result-actions';
 import { cn } from '@/lib/utils';
 import { getClassLabel, LEVELS } from '@/lib/constants';
 import { UserRole } from '@/types/enums';
+import { ResetStudentPasswordButton } from '@/components/admin/ResetStudentPasswordButton';
 import * as XLSX from 'xlsx';
 
 function StudentResultsList({ studentId, onDelete }: { studentId: string, onDelete: (id: string) => void }) {
@@ -38,11 +38,11 @@ function StudentResultsList({ studentId, onDelete }: { studentId: string, onDele
                         </div>
                         <div>
                             <p className="text-sm font-medium text-slate-200">{res.term} Term - {res.session}</p>
-                            <p className="text-[10px] text-slate-500 font-mono">{res.pdfUrl.split('/').pop()}</p>
+                            <p className="text-[10px] text-slate-500 font-mono">Dynamic Result</p>
                         </div>
                     </div>
                     <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <a href={res.pdfUrl} target="_blank" className="p-1.5 text-slate-400 hover:text-indigo-400"><FileUp className="w-4 h-4" /></a>
+                        <a href={`/student/result/${res._id}`} target="_blank" className="p-1.5 text-slate-400 hover:text-indigo-400"><FileUp className="w-4 h-4" /></a>
                         <button onClick={() => onDelete(res._id)} className="p-1.5 text-slate-400 hover:text-red-400"><Trash2 className="w-4 h-4" /></button>
                     </div>
                 </div>
@@ -62,7 +62,6 @@ export default function StudentsPage() {
     const [showImportModal, setShowImportModal] = useState(false);
     const [editingStudent, setEditingStudent] = useState<any | null>(null);
     const [search, setSearch] = useState('');
-    const [uploadingStudent, setUploadingStudent] = useState<any | null>(null);
     const [expandedStudent, setExpandedStudent] = useState<string | null>(null);
     const [importing, setImporting] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -70,8 +69,10 @@ export default function StudentsPage() {
     useEffect(() => {
         if (assignedLevel) {
             setSelectedLevel(assignedLevel);
+        } else if (isSuperAdmin && !selectedLevel) {
+            setSelectedLevel(1); // Default to Primary 1 for Super Admin
         }
-    }, [assignedLevel]);
+    }, [assignedLevel, isSuperAdmin, selectedLevel]);
 
     useEffect(() => {
         if (selectedLevel) {
@@ -87,7 +88,10 @@ export default function StudentsPage() {
         setLoading(false);
     };
 
-    const handleCreate = async (e: React.FormEvent<HTMLFormElement>) => {
+    const [confirmingAdd, setConfirmingAdd] = useState(false);
+    const [addFormData, setAddFormData] = useState<any>(null);
+
+    const handleInitialCreate = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!selectedLevel) return alert('Please select a class first');
 
@@ -99,13 +103,23 @@ export default function StudentsPage() {
             otherNames: formData.get('otherNames') as string,
             currentLevel: selectedLevel,
         };
+        setAddFormData(data);
+        setConfirmingAdd(true);
+    };
 
-        const res = await createStudent(data);
+    const handleConfirmCreate = async () => {
+        setLoading(true);
+        const res = await createStudent(addFormData);
+        setLoading(false);
+
         if (res.success) {
             setShowAddForm(false);
+            setConfirmingAdd(false);
+            setAddFormData(null);
             if (selectedLevel) refreshStudents(selectedLevel);
         } else {
             alert(res.error);
+            setConfirmingAdd(false);
         }
     };
 
@@ -194,9 +208,25 @@ export default function StudentsPage() {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-3xl font-bold text-white tracking-tight">{getClassLabel(assignedLevel!)} Management</h2>
-                    <p className="text-slate-400">Manage students and results for your assigned class.</p>
+                    <h2 className="text-3xl font-bold text-white tracking-tight">
+                        {selectedLevel ? getClassLabel(selectedLevel) : 'Student'} Management
+                    </h2>
+                    <p className="text-slate-400">Manage students and results for {selectedLevel ? getClassLabel(selectedLevel) : 'the school'}.</p>
                 </div>
+                {isSuperAdmin && (
+                    <div className="flex flex-col gap-1">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-1">Switch Class</label>
+                        <select
+                            value={selectedLevel || 1}
+                            onChange={(e) => setSelectedLevel(Number(e.target.value))}
+                            className="bg-slate-900 border border-slate-700 text-white text-sm rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500"
+                        >
+                            {LEVELS.map(l => (
+                                <option key={l} value={l}>{getClassLabel(l)}</option>
+                            ))}
+                        </select>
+                    </div>
+                )}
                 <div className="flex flex-wrap gap-2 text-sm">
                     <button
                         onClick={() => setShowImportModal(true)}
@@ -220,8 +250,39 @@ export default function StudentsPage() {
                     <CardHeader className="pb-2">
                         <CardTitle className="text-lg">Add New Student</CardTitle>
                     </CardHeader>
-                    <CardContent className="p-6 pt-0">
-                        <form onSubmit={handleCreate} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+                    <CardContent className="p-6 pt-0 relative">
+                        {confirmingAdd && (
+                            <div className="absolute inset-0 z-10 bg-slate-900/95 backdrop-blur-sm p-4 flex items-center justify-between animate-in fade-in duration-200 rounded-b-xl">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-amber-500/10 rounded-full">
+                                        <AlertCircle className="w-5 h-5 text-amber-500" />
+                                    </div>
+                                    <div className="text-left">
+                                        <p className="text-xs font-bold text-white uppercase tracking-wider">Please confirm details</p>
+                                        <p className="text-[10px] text-slate-400">Class: {getClassLabel(selectedLevel!)}, Student: {addFormData.surname} {addFormData.firstName}</p>
+                                    </div>
+                                </div>
+                                <div className="flex gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setConfirmingAdd(false)}
+                                        className="px-4 py-2 text-slate-400 hover:text-white text-xs font-bold transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleConfirmCreate}
+                                        disabled={loading}
+                                        className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold text-xs shadow-lg shadow-emerald-500/20 flex items-center gap-2"
+                                    >
+                                        {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
+                                        Confirm & Save
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                        <form onSubmit={handleInitialCreate} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
                             <div className="space-y-1">
                                 <label className="text-xs text-slate-400 uppercase font-bold">Admission #</label>
                                 <input name="admissionNum" required className="w-full bg-slate-950 border border-slate-700 rounded px-3 py-2 text-white text-sm" placeholder="SCH-001" />
@@ -238,7 +299,7 @@ export default function StudentsPage() {
                                 <label className="text-xs text-slate-400 uppercase font-bold">Other Names</label>
                                 <input name="otherNames" className="w-full bg-slate-950 border border-slate-700 rounded px-3 py-2 text-white text-sm" placeholder="O." />
                             </div>
-                            <button type="submit" className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded text-sm font-bold h-10">Save</button>
+                            <button type="submit" className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded text-sm font-bold h-10">Add Student</button>
                         </form>
                     </CardContent>
                 </Card>
@@ -258,7 +319,7 @@ export default function StudentsPage() {
                 {loading ? (
                     <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-indigo-500" /></div>
                 ) : filteredStudents.length === 0 ? (
-                    <p className="text-slate-500 text-center py-10">No students found for {getClassLabel(assignedLevel!)}.</p>
+                    <p className="text-slate-500 text-center py-10">No students found for {selectedLevel ? getClassLabel(selectedLevel) : 'this class'}.</p>
                 ) : (
                     filteredStudents.map((student) => (
                         <Card key={student._id} className={cn("transition-all", expandedStudent === student._id && "ring-1 ring-indigo-500")}>
@@ -280,19 +341,17 @@ export default function StudentsPage() {
                                     </div>
 
                                     <div className="flex items-center gap-2">
+                                        <ResetStudentPasswordButton
+                                            studentId={student._id}
+                                            admissionNum={student.admissionNum}
+                                            studentName={`${student.surname} ${student.firstName || ''}`}
+                                        />
                                         <button
                                             title="Edit Student"
                                             onClick={(e) => { e.stopPropagation(); setEditingStudent(student); }}
                                             className="p-2 bg-slate-800 text-slate-400 rounded-lg hover:bg-slate-700 hover:text-white transition-colors"
                                         >
                                             <Edit className="w-4 h-4" />
-                                        </button>
-                                        <button
-                                            title="Upload Result"
-                                            onClick={(e) => { e.stopPropagation(); setUploadingStudent(student); }}
-                                            className="p-2 bg-indigo-500/10 text-indigo-400 rounded-lg hover:bg-indigo-500/20 transition-colors"
-                                        >
-                                            <FileUp className="w-4 h-4" />
                                         </button>
                                         <button
                                             title="Delete Student"
@@ -328,14 +387,6 @@ export default function StudentsPage() {
                     ))
                 )}
             </div>
-
-            {uploadingStudent && (
-                <ResultUploadModal
-                    student={uploadingStudent}
-                    onClose={() => setUploadingStudent(null)}
-                    onSuccess={() => selectedLevel && refreshStudents(selectedLevel)}
-                />
-            )}
 
             {showImportModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">

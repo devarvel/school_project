@@ -4,6 +4,7 @@ import connectToDatabase from "@/lib/db";
 import { Admin, UserRole } from "@/models/User";
 import { getClassLabel } from "@/lib/constants";
 import { DeleteAdminButton } from "@/components/admin/DeleteAdminButton";
+import { ResetPasswordButton } from "@/components/admin/ResetPasswordButton";
 
 import Link from "next/link";
 
@@ -48,14 +49,20 @@ export default async function AdminUsersPage() {
                                         <Shield className="w-6 h-6 text-indigo-400" />
                                     </div>
                                     <div>
-                                        <h3 className="text-white font-medium">{admin.email}</h3>
-                                        <p className="text-xs text-slate-400 uppercase tracking-wider">
-                                            Assigned to {getClassLabel(admin.assignedLevel!)}
-                                        </p>
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <span className="px-2 py-0.5 bg-indigo-500/20 text-indigo-400 text-[10px] font-bold rounded uppercase tracking-widest border border-indigo-500/20">
+                                                {getClassLabel(admin.assignedLevel!)}
+                                            </span>
+                                            <h3 className="text-white font-medium">{admin.email}</h3>
+                                        </div>
+                                        <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-0.5">Form Teacher Access</p>
                                     </div>
                                 </div>
 
-                                <DeleteAdminButton adminId={admin._id.toString()} />
+                                <div className="flex items-center gap-2">
+                                    <ResetPasswordButton adminId={admin._id.toString()} email={admin.email} />
+                                    <DeleteAdminButton adminId={admin._id.toString()} />
+                                </div>
                             </CardContent>
                         </Card>
                     ))

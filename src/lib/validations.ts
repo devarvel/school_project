@@ -31,7 +31,6 @@ export const ResultSchema = z.object({
     studentId: z.string().min(12, 'Invalid Student ID'),
     term: z.enum(['First', 'Second', 'Third']),
     session: z.string().regex(/^\d{4}\/\d{4}$/, 'Session must be in format YYYY/YYYY'),
-    pdfUrl: z.string().url('Invalid PDF URL'),
 });
 
 // Paystack Webhook Metadata Validation

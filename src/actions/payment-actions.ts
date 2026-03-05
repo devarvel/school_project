@@ -6,9 +6,11 @@ import connectToDatabase from "@/lib/db";
 import { Result } from "@/models/Result";
 import { Payment } from "@/models/Payment";
 import { Student } from "@/models/User";
+import { Settings } from "@/models/Settings";
 import { initializePaystackTransaction, verifyPaystackTransaction } from "@/lib/paystack";
 import { UserRole } from "@/types/enums";
 import { headers } from "next/headers";
+import { sendAccessTokenEmail } from "@/lib/resend";
 
 /**
  * Initialize Payment for a Result
@@ -35,8 +37,9 @@ export async function initializeResultPayment(resultId: string) {
         const student = await Student.findOne({ admissionNum: session.user.admissionNum });
         if (!student) return { success: false, error: 'Student profile not found.' };
 
-        // Business Logic: Fixed price for result access (e.g., 2000 NGN)
-        const amount = 2000;
+        // Dynamic pricing from Settings
+        const settings = await Settings.findOne({});
+        const amount = settings?.resultUnlockFee ?? 2000;
 
         const metadata = {
             resultId: result._id.toString(),
@@ -96,11 +99,13 @@ export async function verifyPayment(reference: string) {
 
         // 3. Update Result
         const accessToken = Math.floor(100000 + Math.random() * 900000).toString();
-        await Result.findByIdAndUpdate(resultId, {
+        const result = await Result.findByIdAndUpdate(resultId, {
             isPaid: true,
             accessToken,
             accessTokenExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        });
+        }, { new: true });
+
+        if (!result) throw new Error('Result not found after update');
 
         // 4. Create Payment Record
         const student = await Student.findById(studentId);
@@ -112,6 +117,22 @@ export async function verifyPayment(reference: string) {
             reference: reference,
             classAtTimeOfPayment: student.currentLevel,
         });
+
+        // 5. Send Email Notification if student has an email
+        if (student.email) {
+            try {
+                await sendAccessTokenEmail(
+                    student.email,
+                    student.surname,
+                    accessToken,
+                    result.term,
+                    result.session
+                );
+            } catch (emailError) {
+                console.error('[EMAIL_SEND_ERROR]', emailError);
+                // Don't fail the transaction if email fails
+            }
+        }
 
         return { success: true, message: 'Result unlocked successfully' };
     }
