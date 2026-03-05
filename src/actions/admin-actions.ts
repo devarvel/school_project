@@ -120,6 +120,18 @@ export async function getSystemUsage() {
     await connectToDatabase();
     try {
         // 1. Database Stats
+        if (!mongoose.connection.db) {
+            console.error('Database connection not established');
+            return {
+                success: true,
+                usage: {
+                    database: { usedMB: 0, storageMB: 0, limitMB: 512 },
+                    students: { current: 0, total: 0, limit: 500 },
+                    assets: { count: 0, limit: 1000 },
+                    auditLogs: 0
+                }
+            };
+        }
         const stats = await mongoose.connection.db.command({ dbStats: 1 });
         const dataSizeMB = (stats.dataSize || 0) / (1024 * 1024);
         const storageSizeMB = (stats.storageSize || 0) / (1024 * 1024);
