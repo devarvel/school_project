@@ -5,7 +5,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export async function sendAccessTokenEmail(email: string, studentName: string, accessToken: string, term: string, session: string) {
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Scholar Portal Pro <onboarding@resend.dev>', // Replace with verified domain in production
+      from: 'City Child Foundation School <onboarding@resend.dev>', // Replace with verified domain in production
       to: [email],
       subject: `Result Access Token - ${term} Term ${session}`,
       html: `
@@ -24,8 +24,8 @@ export async function sendAccessTokenEmail(email: string, studentName: string, a
     });
 
     if (error) {
-       console.error('Resend Error:', error);
-       return { success: false, error };
+      console.error('Resend Error:', error);
+      return { success: false, error };
     }
 
     return { success: true, data };

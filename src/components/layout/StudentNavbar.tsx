@@ -14,7 +14,7 @@ export function StudentNavbar() {
                     <div className="flex items-center gap-8">
                         <Link href="/student" className="flex items-center gap-2">
                             <GraduationCap className="w-8 h-8 text-indigo-500" />
-                            <span className="text-xl font-bold text-white tracking-tighter">Portal<span className="text-indigo-500">Pro</span></span>
+                            <span className="text-xl font-bold text-white tracking-tighter">City Child <span className="text-indigo-500">Foundation School</span></span>
                         </Link>
 
                         <div className="hidden md:flex items-center gap-4">

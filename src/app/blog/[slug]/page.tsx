@@ -75,7 +75,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             </main>
 
             <footer className="py-12 border-t border-slate-900 border-opacity-50 text-center text-slate-600 text-xs">
-                © 2026 Scholar Portal Pro
+                © 2026 City Child Foundation School
             </footer>
         </div>
     );

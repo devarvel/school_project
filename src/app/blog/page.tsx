@@ -17,7 +17,7 @@ export default async function BlogPage() {
             <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
                 <div className="max-w-3xl mb-16">
                     <h2 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-4">School News & <span className="text-indigo-500">Updates</span></h2>
-                    <p className="text-slate-400 text-lg">Stay informed with the latest happenings, academic calendars, and announcements from Scholar Portal Pro.</p>
+                    <p className="text-slate-400 text-lg">Stay informed with the latest happenings, academic calendars, and announcements from City Child Foundation School.</p>
                 </div>
 
                 {posts.length === 0 ? (
@@ -64,7 +64,7 @@ export default async function BlogPage() {
             </main>
 
             <footer className="py-12 border-t border-slate-900 text-center text-slate-600 text-xs">
-                © 2026 Scholar Portal Pro
+                © 2026 City Child Foundation School
             </footer>
         </div>
     );

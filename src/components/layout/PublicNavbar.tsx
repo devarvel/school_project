@@ -27,7 +27,7 @@ export function PublicNavbar() {
                 <Link href="/" className="flex items-center gap-2 group">
                     <GraduationCap className="w-8 h-8 text-indigo-500 group-hover:rotate-12 transition-transform" />
                     <span className="text-xl font-bold text-white tracking-tighter">
-                        City <span className="text-indigo-500">High</span>
+                        City Child <span className="text-indigo-500">Foundation School</span>
                     </span>
                 </Link>
 

@@ -58,7 +58,7 @@ export function Sidebar() {
             >
                 <div className="p-6 mt-14 lg:mt-0">
                     <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
-                        Scholar Pro
+                        City Child
                     </h1>
                     <div className="flex flex-col mt-1">
                         <p className="text-xs text-slate-400 uppercase tracking-widest">{role?.replace('-', ' ')}</p>

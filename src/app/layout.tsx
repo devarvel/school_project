@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Scholar Portal Pro",
+  title: "City Child Foundation School",
   description: "Secure Digital Academic Vault",
 };
 

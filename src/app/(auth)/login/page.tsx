@@ -41,7 +41,7 @@ export default function LoginPage() {
             <div className="w-full max-w-md space-y-8">
                 <div className="text-center space-y-2">
                     <h1 className="text-4xl font-extrabold tracking-tighter text-white">
-                        Scholar <span className="text-indigo-500">Portal</span>
+                        City Child <span className="text-indigo-500">Foundation School</span>
                     </h1>
                     <p className="text-slate-400 text-sm">Secure Digital Academic Vault</p>
                 </div>

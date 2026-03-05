@@ -19,10 +19,10 @@ export default function Home() {
                 href="/login"
                 className="px-8 py-3 bg-indigo-600/10 hover:bg-indigo-600 text-indigo-400 hover:text-white border border-indigo-600/20 rounded-full font-bold transition-all"
               >
-                Scholar Portal Access
+                Foundation Access
               </a>
             </div>
-            <p className="text-slate-600 text-xs">© 2026 City High School. Built for Academic Excellence.</p>
+            <p className="text-slate-600 text-xs">© 2026 City Child Foundation School. Built for Academic Excellence.</p>
           </div>
         </footer>
       </main>

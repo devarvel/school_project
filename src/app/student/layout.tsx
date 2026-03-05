@@ -14,7 +14,7 @@ export default function StudentLayout({
 
             <footer className="py-8 bg-slate-900 border-t border-slate-800">
                 <div className="max-w-7xl mx-auto px-4 text-center text-slate-500 text-sm">
-                    © 2026 Scholar Portal Pro. All rights reserved.
+                    © 2026 City Child Foundation School. All rights reserved.
                 </div>
             </footer>
         </div>
